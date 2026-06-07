@@ -25,7 +25,7 @@ fn default_margin_config() -> MarginConfig {
   {
     initial_rate:     d.decimal(25, -2),       # 0.25
     maintenance_rate: d.decimal(15, -2),       # 0.15
-    max_order_margin: d.decimal(5000000, -2),  # $50,000.00
+    max_order_margin: d.decimal(5000000000, -2),  # $50,000,000.00
   }
 }
 
