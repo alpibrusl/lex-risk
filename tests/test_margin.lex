@@ -41,7 +41,6 @@ fn cfg() -> margin.MarginConfig {
 # $100.00 × 25% = $25.00
 # { coefficient: 10000, exponent: -2 } × { coefficient: 25, exponent: -2 }
 # = { coefficient: 250000, exponent: -4 }
-
 fn test_initial_margin_standard() -> Result[Unit, Str] {
   let notional := price(10000, -2)
   let im := margin.initial_margin(notional, cfg())
@@ -51,7 +50,6 @@ fn test_initial_margin_standard() -> Result[Unit, Str] {
 # $200,000.00 × 25% = $50,000.00
 # notional = { coefficient: 20000000, exponent: -2 }
 # im       = { coefficient: 500000000, exponent: -4 }
-
 fn test_initial_margin_at_cap() -> Result[Unit, Str] {
   let notional := price(20000000, -2)
   let im := margin.initial_margin(notional, cfg())
@@ -61,7 +59,6 @@ fn test_initial_margin_at_cap() -> Result[Unit, Str] {
 # ---- maintenance_margin ---------------------------------------------
 # $100.00 × 15% = $15.00
 # = { coefficient: 150000, exponent: -4 }
-
 fn test_maintenance_margin_standard() -> Result[Unit, Str] {
   let notional := price(10000, -2)
   let mm := margin.maintenance_margin(notional, cfg())
@@ -78,7 +75,6 @@ fn test_maintenance_less_than_initial() -> Result[Unit, Str] {
 
 # ---- pre_trade_check: passing orders --------------------------------
 # qty=100, mark=$100.00 → notional=$10,000, IM=$2,500 < $50,000 → Ok
-
 fn test_pre_trade_small_order_passes() -> Result[Unit, Str] {
   match margin.pre_trade_check(100, price(10000, -2), cfg()) {
     Ok(_) => pass(),
@@ -87,7 +83,6 @@ fn test_pre_trade_small_order_passes() -> Result[Unit, Str] {
 }
 
 # qty=1, mark=$250.00 → notional=$250, IM=$62.50 → Ok
-
 fn test_pre_trade_single_share_passes() -> Result[Unit, Str] {
   match margin.pre_trade_check(1, price(25000, -2), cfg()) {
     Ok(_) => pass(),
@@ -96,7 +91,6 @@ fn test_pre_trade_single_share_passes() -> Result[Unit, Str] {
 }
 
 # qty=0: zero qty is allowed (degenerate but shouldn't error)
-
 fn test_pre_trade_zero_qty_passes() -> Result[Unit, Str] {
   match margin.pre_trade_check(0, price(50000, -2), cfg()) {
     Ok(_) => pass(),
@@ -105,7 +99,6 @@ fn test_pre_trade_zero_qty_passes() -> Result[Unit, Str] {
 }
 
 # zero mark_price bypasses the check regardless of qty
-
 fn test_pre_trade_zero_price_bypasses_check() -> Result[Unit, Str] {
   match margin.pre_trade_check(999999, d.zero(), cfg()) {
     Ok(_) => pass(),
@@ -115,7 +108,6 @@ fn test_pre_trade_zero_price_bypasses_check() -> Result[Unit, Str] {
 
 # ---- pre_trade_check: breach ----------------------------------------
 # qty=1000, mark=$250.00 → notional=$250,000 → IM=$62,500 > $50,000 → Err
-
 fn test_pre_trade_large_order_breaches() -> Result[Unit, Str] {
   match margin.pre_trade_check(1000, price(25000, -2), cfg()) {
     Ok(_) => fail("expected breach, got Ok"),
@@ -124,7 +116,6 @@ fn test_pre_trade_large_order_breaches() -> Result[Unit, Str] {
 }
 
 # qty=600, mark=$500.00 → notional=$300,000 → IM=$75,000 > $50,000 → Err
-
 fn test_pre_trade_nvda_breach() -> Result[Unit, Str] {
   match margin.pre_trade_check(600, price(50000, -2), cfg()) {
     Ok(_) => fail("expected breach, got Ok"),
@@ -134,7 +125,6 @@ fn test_pre_trade_nvda_breach() -> Result[Unit, Str] {
 
 # Boundary: qty=800, mark=$250 → notional=$200,000 → IM=$50,000 (exactly at cap)
 # $50,000 is NOT greater than $50,000 → Ok
-
 fn test_pre_trade_exactly_at_cap_passes() -> Result[Unit, Str] {
   match margin.pre_trade_check(800, price(25000, -2), cfg()) {
     Ok(_) => pass(),
@@ -143,7 +133,6 @@ fn test_pre_trade_exactly_at_cap_passes() -> Result[Unit, Str] {
 }
 
 # qty=801, mark=$250 → notional=$200,250 → IM=$50,062.50 > $50,000 → Err
-
 fn test_pre_trade_one_over_cap_breaches() -> Result[Unit, Str] {
   match margin.pre_trade_check(801, price(25000, -2), cfg()) {
     Ok(_) => fail("one over cap should breach"),
@@ -152,7 +141,6 @@ fn test_pre_trade_one_over_cap_breaches() -> Result[Unit, Str] {
 }
 
 # ---- Suite ----------------------------------------------------------
-
 fn suite() -> List[Result[Unit, Str]] {
   [test_initial_margin_standard(), test_initial_margin_at_cap(), test_maintenance_margin_standard(), test_maintenance_less_than_initial(), test_pre_trade_small_order_passes(), test_pre_trade_single_share_passes(), test_pre_trade_zero_qty_passes(), test_pre_trade_zero_price_bypasses_check(), test_pre_trade_large_order_breaches(), test_pre_trade_nvda_breach(), test_pre_trade_exactly_at_cap_passes(), test_pre_trade_one_over_cap_breaches()]
 }
@@ -165,3 +153,4 @@ fn run_all() -> Int {
     }
   })
 }
+

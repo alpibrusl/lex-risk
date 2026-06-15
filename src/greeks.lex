@@ -11,15 +11,17 @@ import "lex-money/src/decimal" as d
 
 import "lex-positions/src/position" as pos
 
-type EquityGreeks = {
-  delta        :: Int,       # signed qty: long > 0, short < 0, flat = 0
-  dollar_delta :: d.Decimal, # qty × mark_price (negative = net short)
-}
+type EquityGreeks = { delta :: Int, dollar_delta :: d.Decimal }
 
 fn equity_greeks(position :: pos.Position, mark_price :: d.Decimal) -> EquityGreeks {
   { delta: position.qty, dollar_delta: d.mul(d.from_int(position.qty), mark_price) }
 }
 
 fn abs_delta(g :: EquityGreeks) -> Int {
-  if g.delta < 0 { 0 - g.delta } else { g.delta }
+  if g.delta < 0 {
+    0 - g.delta
+  } else {
+    g.delta
+  }
 }
+

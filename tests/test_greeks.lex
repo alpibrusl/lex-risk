@@ -52,7 +52,6 @@ fn flat_tsla() -> pos.Position {
 }
 
 # ---- Long position --------------------------------------------------
-
 fn test_long_delta_equals_qty() -> Result[Unit, Str] {
   let g := greeks.equity_greeks(long_aapl(), price(17500, -2))
   assert_eq_int(g.delta, 100, "long delta = qty")
@@ -60,12 +59,10 @@ fn test_long_delta_equals_qty() -> Result[Unit, Str] {
 
 fn test_long_dollar_delta() -> Result[Unit, Str] {
   let g := greeks.equity_greeks(long_aapl(), price(17500, -2))
-  # 100 × $175.00 = $17,500.00  →  { coefficient: 1750000, exponent: -2 }
   assert_eq_dec(g.dollar_delta, price(1750000, -2), "long dollar delta = 17500.00")
 }
 
 # ---- Short position -------------------------------------------------
-
 fn test_short_delta_is_negative() -> Result[Unit, Str] {
   let g := greeks.equity_greeks(short_msft(), price(42000, -2))
   assert_eq_int(g.delta, 0 - 50, "short delta = -qty")
@@ -73,12 +70,10 @@ fn test_short_delta_is_negative() -> Result[Unit, Str] {
 
 fn test_short_dollar_delta_is_negative() -> Result[Unit, Str] {
   let g := greeks.equity_greeks(short_msft(), price(42000, -2))
-  # -50 × $420.00 = -$21,000.00  →  { coefficient: -2100000, exponent: -2 }
   assert_eq_dec(g.dollar_delta, price(0 - 2100000, -2), "short dollar delta = -21000.00")
 }
 
 # ---- Flat position --------------------------------------------------
-
 fn test_flat_delta_is_zero() -> Result[Unit, Str] {
   let g := greeks.equity_greeks(flat_tsla(), price(25000, -2))
   assert_eq_int(g.delta, 0, "flat delta = 0")
@@ -90,7 +85,6 @@ fn test_flat_dollar_delta_is_zero() -> Result[Unit, Str] {
 }
 
 # ---- abs_delta ------------------------------------------------------
-
 fn test_abs_delta_long() -> Result[Unit, Str] {
   let g := greeks.equity_greeks(long_aapl(), price(17500, -2))
   assert_eq_int(greeks.abs_delta(g), 100, "abs delta long = 100")
@@ -107,7 +101,6 @@ fn test_abs_delta_flat() -> Result[Unit, Str] {
 }
 
 # ---- Suite ----------------------------------------------------------
-
 fn suite() -> List[Result[Unit, Str]] {
   [test_long_delta_equals_qty(), test_long_dollar_delta(), test_short_delta_is_negative(), test_short_dollar_delta_is_negative(), test_flat_delta_is_zero(), test_flat_dollar_delta_is_zero(), test_abs_delta_long(), test_abs_delta_short(), test_abs_delta_flat()]
 }
@@ -120,3 +113,4 @@ fn run_all() -> Int {
     }
   })
 }
+

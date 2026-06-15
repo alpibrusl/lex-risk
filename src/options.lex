@@ -10,29 +10,26 @@
 # Pure: no effects.
 
 import "std.math" as math
+
 import "std.float" as float
+
 import "std.int" as int
+
 import "lex-money/src/decimal" as d
 
-type OptionInputs = {
-  spot   :: Float,   # S
-  strike :: Float,   # K
-  rate   :: Float,   # r (annual continuous)
-  vol    :: Float,   # σ (annual)
-  expiry :: Float,   # T (years)
-}
+type OptionInputs = { spot :: Float, strike :: Float, rate :: Float, vol :: Float, expiry :: Float }
 
 # Standard normal probability density function
 fn normal_pdf(x :: Float) -> Float {
   let two_pi := 6.283185307179586
-  math.exp(0.0 - (x * x / 2.0)) / math.sqrt(two_pi)
+  math.exp(0.0 - x * x / 2.0) / math.sqrt(two_pi)
 }
 
 # Standard normal CDF via Abramowitz & Stegun 26.2.17 (max error < 7.5e-8)
 fn norm_cdf(x :: Float) -> Float {
   let ax := math.abs(x)
   let t := 1.0 / (1.0 + 0.2316419 * ax)
-  let poly := t * (0.319381530 + t * (0.0 - 0.356563782 + t * (1.781477937 + t * (0.0 - 1.821255978 + t * 1.330274429))))
+  let poly := t * (0.31938153 + t * (0.0 - 0.356563782 + t * (1.781477937 + t * (0.0 - 1.821255978 + t * 1.330274429))))
   let upper := 1.0 - normal_pdf(ax) * poly
   if x >= 0.0 {
     upper
@@ -162,3 +159,4 @@ fn from_decimal(dec :: d.Decimal) -> Float {
 fn option_inputs(spot :: d.Decimal, strike :: d.Decimal, rate :: d.Decimal, vol :: d.Decimal, expiry_days :: Int) -> OptionInputs {
   { spot: from_decimal(spot), strike: from_decimal(strike), rate: from_decimal(rate), vol: from_decimal(vol), expiry: int.to_float(expiry_days) / 365.0 }
 }
+

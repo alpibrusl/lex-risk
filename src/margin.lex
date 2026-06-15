@@ -15,18 +15,10 @@ import "lex-money/src/decimal" as d
 
 import "lex-positions/src/position" as pos
 
-type MarginConfig = {
-  initial_rate     :: d.Decimal,  # 0.25 = 25% Reg T initial
-  maintenance_rate :: d.Decimal,  # 0.15 = 15% maintenance
-  max_order_margin :: d.Decimal,  # per-order initial-margin cap
-}
+type MarginConfig = { initial_rate :: d.Decimal, maintenance_rate :: d.Decimal, max_order_margin :: d.Decimal }
 
 fn default_margin_config() -> MarginConfig {
-  {
-    initial_rate:     d.decimal(25, -2),       # 0.25
-    maintenance_rate: d.decimal(15, -2),       # 0.15
-    max_order_margin: d.decimal(5000000000, -2),  # $50,000,000.00
-  }
+  { initial_rate: d.decimal(25, -2), maintenance_rate: d.decimal(15, -2), max_order_margin: d.decimal(5000000000, -2) }
 }
 
 fn initial_margin(notional :: d.Decimal, cfg :: MarginConfig) -> d.Decimal {
@@ -45,12 +37,10 @@ fn pre_trade_check(qty :: Int, mark_price :: d.Decimal, cfg :: MarginConfig) -> 
     let notional := d.mul(d.from_int(qty), mark_price)
     let im := initial_margin(notional, cfg)
     if d.gt(im, cfg.max_order_margin) {
-      Err(
-        "order initial margin " + pos.decimal_to_str(im)
-          + " exceeds limit " + pos.decimal_to_str(cfg.max_order_margin)
-      )
+      Err("order initial margin " + pos.decimal_to_str(im) + " exceeds limit " + pos.decimal_to_str(cfg.max_order_margin))
     } else {
       Ok(())
     }
   }
 }
+

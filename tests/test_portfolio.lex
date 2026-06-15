@@ -16,6 +16,7 @@ import "lex-money/src/decimal" as d
 import "lex-positions/src/position" as pos
 
 import "../src/margin" as margin
+
 import "../src/portfolio" as port
 
 fn pass() -> Result[Unit, Str] {
@@ -59,11 +60,15 @@ fn msft_short() -> pos.Position {
   { key: { account: "ACC1", symbol: "MSFT" }, qty: 0 - 50, avg_cost: price(42000, -2), realized_pnl: d.zero() }
 }
 
-fn aapl_mark() -> d.Decimal { price(17500, -2) }
-fn msft_mark() -> d.Decimal { price(42000, -2) }
+fn aapl_mark() -> d.Decimal {
+  price(17500, -2)
+}
+
+fn msft_mark() -> d.Decimal {
+  price(42000, -2)
+}
 
 # ---- position_risk for a single long position -----------------------
-
 fn test_position_risk_symbol() -> Result[Unit, Str] {
   let pr := port.position_risk({ position: aapl_long(), mark_price: aapl_mark() }, cfg())
   assert_true(pr.symbol == "AAPL", "symbol = AAPL")
@@ -81,7 +86,6 @@ fn test_position_risk_delta_long() -> Result[Unit, Str] {
 
 fn test_position_risk_dollar_delta_long() -> Result[Unit, Str] {
   let pr := port.position_risk({ position: aapl_long(), mark_price: aapl_mark() }, cfg())
-  # 100 × $175.00 = { coefficient: 1750000, exponent: -2 }
   assert_eq_dec(pr.dollar_delta, price(1750000, -2), "dollar delta = $17,500")
 }
 
@@ -97,12 +101,10 @@ fn test_position_risk_unrealized_pnl_zero() -> Result[Unit, Str] {
 
 fn test_position_risk_initial_margin_long() -> Result[Unit, Str] {
   let pr := port.position_risk({ position: aapl_long(), mark_price: aapl_mark() }, cfg())
-  # $17,500 × 0.25 = { coefficient: 43750000, exponent: -4 } = $4,375.00
   assert_eq_dec(pr.initial_margin, price(43750000, -4), "initial margin = $4,375")
 }
 
 # ---- position_risk for a short position -----------------------------
-
 fn test_position_risk_delta_short() -> Result[Unit, Str] {
   let pr := port.position_risk({ position: msft_short(), mark_price: msft_mark() }, cfg())
   assert_eq_int(pr.delta, 0 - 50, "short delta = -50")
@@ -110,24 +112,20 @@ fn test_position_risk_delta_short() -> Result[Unit, Str] {
 
 fn test_position_risk_dollar_delta_short() -> Result[Unit, Str] {
   let pr := port.position_risk({ position: msft_short(), mark_price: msft_mark() }, cfg())
-  # -50 × $420.00 = { coefficient: -2100000, exponent: -2 }
   assert_eq_dec(pr.dollar_delta, price(0 - 2100000, -2), "dollar delta = -$21,000")
 }
 
 fn test_position_risk_gross_notional_short() -> Result[Unit, Str] {
   let pr := port.position_risk({ position: msft_short(), mark_price: msft_mark() }, cfg())
-  # |−50| × $420.00 = { coefficient: 2100000, exponent: -2 }  (positive)
   assert_eq_dec(pr.gross_notional, price(2100000, -2), "gross notional short = $21,000")
 }
 
 fn test_position_risk_initial_margin_short() -> Result[Unit, Str] {
   let pr := port.position_risk({ position: msft_short(), mark_price: msft_mark() }, cfg())
-  # $21,000 × 0.25 = { coefficient: 52500000, exponent: -4 } = $5,250.00
   assert_eq_dec(pr.initial_margin, price(52500000, -4), "initial margin short = $5,250")
 }
 
 # ---- portfolio_risk: mixed long + short -----------------------------
-
 fn mixed_entries() -> List[port.MarkedPosition] {
   [{ position: aapl_long(), mark_price: aapl_mark() }, { position: msft_short(), mark_price: msft_mark() }]
 }
@@ -139,7 +137,6 @@ fn test_portfolio_position_count() -> Result[Unit, Str] {
 
 fn test_portfolio_net_dollar_delta() -> Result[Unit, Str] {
   let pr := port.portfolio_risk(mixed_entries(), cfg())
-  # $17,500 + (−$21,000) = −$3,500  →  { coefficient: -350000, exponent: -2 }
   assert_eq_dec(pr.net_dollar_delta, price(0 - 350000, -2), "net dollar delta = -$3,500")
 }
 
@@ -150,7 +147,6 @@ fn test_portfolio_net_delta_is_negative() -> Result[Unit, Str] {
 
 fn test_portfolio_total_notional() -> Result[Unit, Str] {
   let pr := port.portfolio_risk(mixed_entries(), cfg())
-  # $17,500 + $21,000 = $38,500  →  { coefficient: 3850000, exponent: -2 }
   assert_eq_dec(pr.total_notional, price(3850000, -2), "total notional = $38,500")
 }
 
@@ -161,12 +157,10 @@ fn test_portfolio_total_unrealized_pnl_zero() -> Result[Unit, Str] {
 
 fn test_portfolio_total_margin() -> Result[Unit, Str] {
   let pr := port.portfolio_risk(mixed_entries(), cfg())
-  # $4,375 + $5,250 = $9,625  →  { coefficient: 96250000, exponent: -4 }
   assert_eq_dec(pr.total_margin, price(96250000, -4), "total margin = $9,625")
 }
 
 # ---- portfolio_risk: empty -----------------------------------------
-
 fn test_empty_portfolio() -> Result[Unit, Str] {
   let pr := port.portfolio_risk([], cfg())
   match assert_eq_int(list.len(pr.positions), 0, "no positions") {
@@ -182,7 +176,6 @@ fn test_empty_portfolio() -> Result[Unit, Str] {
 }
 
 # ---- Suite ----------------------------------------------------------
-
 fn suite() -> List[Result[Unit, Str]] {
   [test_position_risk_symbol(), test_position_risk_qty(), test_position_risk_delta_long(), test_position_risk_dollar_delta_long(), test_position_risk_gross_notional_long(), test_position_risk_unrealized_pnl_zero(), test_position_risk_initial_margin_long(), test_position_risk_delta_short(), test_position_risk_dollar_delta_short(), test_position_risk_gross_notional_short(), test_position_risk_initial_margin_short(), test_portfolio_position_count(), test_portfolio_net_dollar_delta(), test_portfolio_net_delta_is_negative(), test_portfolio_total_notional(), test_portfolio_total_unrealized_pnl_zero(), test_portfolio_total_margin(), test_empty_portfolio()]
 }
@@ -195,3 +188,4 @@ fn run_all() -> Int {
     }
   })
 }
+
