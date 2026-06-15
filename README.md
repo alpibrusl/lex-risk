@@ -1,5 +1,9 @@
 # lex-risk
 
+[![CI](https://github.com/alpibrusl/lex-risk/actions/workflows/ci.yml/badge.svg)](https://github.com/alpibrusl/lex-risk/actions/workflows/ci.yml)
+
+**Part of the [Lex](https://lexlang.org) project** — Finance · [Manifesto](https://lexlang.org/manifesto) · [All packages](https://lexlang.org)
+
 Portfolio risk aggregation for Lex. Pure — no effects.
 
 Computes equity Greeks (delta), gross notional, unrealized PnL, and Reg-T initial margin across a portfolio of positions. All arithmetic is exact `Decimal` from `lex-money`. Mark prices are supplied by the caller — price discovery is the server layer's responsibility.
