@@ -48,10 +48,10 @@ fn test_limits_specific_beats_default() -> Result[Unit, Str] {
   let ferro_ok := ex.under_limit(exps, limits, "sub-ferro")
   let carrier_breach := not ex.under_limit(exps, limits, "carrier-b")
   let brs := ex.breaches(exps, limits)
-  let one_breach := list.len(brs) == 1 and (match list.head(brs) {
+  let one_breach := list.len(brs) == 1 and match list.head(brs) {
     Some(b) => b.counterparty == "carrier-b",
     None => false,
-  })
+  }
   assert_true(ferro_ok and carrier_breach and one_breach, "limit resolution wrong")
 }
 
@@ -75,3 +75,4 @@ fn run_all() -> [io, sql, fs_read, fs_write, time, crypto, random, net, concurre
     ()
   }
 }
+
