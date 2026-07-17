@@ -21,6 +21,7 @@ import "lex-money/src/decimal" as d
 import "lex-positions/src/position" as pos
 
 import "../src/margin" as margin
+
 import "../src/portfolio" as port
 
 fn price(c :: Int, e :: Int) -> d.Decimal {
@@ -72,29 +73,25 @@ fn int_str(n :: Int) -> Str {
 }
 
 import "std.list" as list
+
 import "std.int" as int
 
+# The four orders below, and why each one is interesting:
+#   1. 600 shares @ $500  →  notional $300,000  →  IM $75,000     →  BREACH
+#   2. 200 shares @ $400  →  notional $80,000   →  IM $20,000     →  PASS
+#   3. 800 shares @ $250  →  notional $200,000  →  IM $50,000     →  exactly at cap, PASS
+#   4. 801 shares @ $250  →  notional $200,250  →  IM $50,062.50  →  one share over, BREACH
 fn main() -> [io] Unit {
   let cfg := margin.default_margin_config()
-
   let __lex_discard_a := io.print("")
   let __lex_discard_b := io.print("  lex-risk — margin breach example")
   let __lex_discard_c := io.print("  Reg-T: 25% initial margin, $50,000 per-order cap")
-
   let __lex_discard_d := section("Current portfolio — NVDA +200 @ $500")
   let __lex_discard_e := show_portfolio(cfg)
-
   let __lex_discard_f := section("Pre-trade check — incoming orders")
-
-  # Order 1: 600 shares @ $500  →  notional $300,000  →  IM $75,000  →  BREACH
   let __lex_discard_g := show_check("BUY 600 NVDA @ $500.00  (notional $300,000  IM $75,000)", 600, price(50000, -2), cfg)
-
-  # Order 2: 200 shares @ $400  →  notional $80,000   →  IM $20,000  →  PASS
   let __lex_discard_h := show_check("BUY 200 NVDA @ $400.00  (notional $80,000   IM $20,000)", 200, price(40000, -2), cfg)
-
-  # Order 3: 800 shares @ $250  →  notional $200,000  →  IM $50,000  →  exactly at cap, PASS
   let __lex_discard_i := show_check("BUY 800 NVDA @ $250.00  (notional $200,000  IM $50,000  — at cap)", 800, price(25000, -2), cfg)
-
-  # Order 4: 801 shares @ $250  →  notional $200,250  →  IM $50,062.50  →  one share over, BREACH
   show_check("BUY 801 NVDA @ $250.00  (notional $200,250  IM $50,062  — one share over)", 801, price(25000, -2), cfg)
 }
+
