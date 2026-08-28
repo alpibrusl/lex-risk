@@ -97,3 +97,9 @@ Options pricing (Black-Scholes) would make `equity_greeks` return true delta < 1
 [dependencies]
 "lex-risk" = { git = "https://github.com/alpibrusl/lex-risk" }
 ```
+
+## License
+
+Copyright (c) 2026 lex-risk contributors.
+
+Licensed under the [EUPL-1.2](LICENSE) — the European Union Public Licence, as used across the `lex-*` ecosystem.
